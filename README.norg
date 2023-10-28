@@ -15,7 +15,7 @@ Let me know if you have any suggestions for improvement.
 ** Setup
 
 @code lua
-require('smart-tab').config({
+require('smart-tab').setup({
     -- default options:
     -- list of tree-sitter node types to filter
     skips = { "string_content" },
@@ -23,6 +23,14 @@ require('smart-tab').config({
     mapping = "<tab>",
 })
 @end
+
+*** Manual Keymap
+
+    @code lua
+    vim.keymap.set("i", "<tab>", "<plug>(smart-tab)")
+    @end
+
+    > NOTE: this won't fallback to `<tab>` on blank line
 
 ** Usage
 

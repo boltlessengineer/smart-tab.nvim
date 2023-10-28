@@ -20,8 +20,8 @@ any suggestions for improvement.
 
 ## Setup
 
-``` lua
-require('smart-tab').config({
+```lua
+require('smart-tab').setup({
     -- default options:
     -- list of tree-sitter node types to filter
     skips = { "string_content" },
@@ -29,6 +29,14 @@ require('smart-tab').config({
     mapping = "<tab>",
 })
 ```
+
+### Manual Keymap
+
+```lua
+vim.keymap.set("i", "<tab>", "<plug>(smart-tab)")
+```
+
+> NOTE: this won't fallback to `<tab>` on blank line
 
 ## Usage
 
@@ -38,7 +46,7 @@ require('smart-tab').config({
     node
 
     - If current node type is in `skips`, cursor jumps to end of it's
-    parrent node
+      parrent node
 
     - If cursor is at blank line, literal `<tab>` is inserted
 
@@ -46,7 +54,7 @@ require('smart-tab').config({
 
 Normal smart-tab.
 
-``` javascript
+```javascript
 let obj = {
     key = 1,| // <- press <tab> here
 }
@@ -57,7 +65,7 @@ let obj = {
 
 Smart tab with skipping some node types.
 
-``` javascript
+```javascript
 let str = "abc|de"
 //            ^ press <tab> here
 let str = "abcde"|
@@ -66,7 +74,7 @@ let str = "abcde"|
 
 You can still insert `<tab>` on blank line.
 
-``` javascript
+```javascript
 let example3 = {
 | // <- press <tab> in blank line
 }
