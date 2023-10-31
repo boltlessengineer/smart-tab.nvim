@@ -1,5 +1,3 @@
-local ts_utils = require("nvim-treesitter.ts_utils")
-
 local M = {}
 
 ---@class SmartTabConfig
@@ -28,6 +26,8 @@ local function should_skip(node_type)
 end
 
 local function smart_tab()
+	local ts_utils = require("nvim-treesitter.ts_utils")
+
 	local node = ts_utils.get_node_at_cursor()
 	while should_skip(node:type()) do
 		node = node:parent()
