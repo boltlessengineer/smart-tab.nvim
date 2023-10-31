@@ -26,9 +26,10 @@ local function should_skip(node_type)
 end
 
 local function smart_tab()
-	local ts_utils = require("nvim-treesitter.ts_utils")
-
-	local node = ts_utils.get_node_at_cursor()
+	local node = vim.treesitter.get_node()
+	if not node then
+		return
+	end
 	while should_skip(node:type()) do
 		node = node:parent()
 	end
@@ -36,6 +37,7 @@ local function smart_tab()
 	vim.api.nvim_win_set_cursor(0, { row + 1, col })
 end
 
+-- NOTE: this allows cursor movement on expr mapping
 vim.keymap.set("i", "<plug>(smart-tab)", smart_tab)
 
 ---setup smart-tab plugin
@@ -44,13 +46,19 @@ function M.setup(opts)
 	opts = opts or {}
 	configs = vim.tbl_extend("force", configs, opts)
 	if configs.mapping then
-		vim.keymap.set("i", "<tab>", function()
-			if is_blank_line() then
-				return "<tab>"
-			else
-				return "<plug>(smart-tab)"
-			end
-		end, { desc = "smart-tab", expr = true })
+		vim.api.nvim_create_autocmd("BufNew", {
+			group = "SmartTab",
+			callback = function(event)
+				vim.keymap.set("i", "<tab>", function()
+					local non_treesitter = not vim.treesitter.get_node()
+					if non_treesitter or is_blank_line() then
+						return "<tab>"
+					else
+						return "<plug>(smart-tab)"
+					end
+				end, { desc = "smart-tab", expr = true, buffer = event.buffer })
+			end,
+		})
 	end
 end
 
