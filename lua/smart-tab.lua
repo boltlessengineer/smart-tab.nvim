@@ -46,20 +46,14 @@ function M.setup(opts)
 	opts = opts or {}
 	configs = vim.tbl_extend("force", configs, opts)
 	if configs.mapping then
-		local group = vim.api.nvim_create_augroup("SmartTab", { clear = true })
-		vim.api.nvim_create_autocmd("BufNew", {
-			group = group,
-			callback = function(event)
-				vim.keymap.set("i", "<tab>", function()
-					local non_treesitter = not vim.treesitter.get_node()
-					if non_treesitter or is_blank_line() then
-						return "<tab>"
-					else
-						return "<plug>(smart-tab)"
-					end
-				end, { desc = "smart-tab", expr = true, buffer = event.buffer })
-			end,
-		})
+		vim.keymap.set("i", "<tab>", function()
+			local non_treesitter = not pcall(vim.treesitter.get_node)
+			if non_treesitter or is_blank_line() then
+				return "<tab>"
+			else
+				return "<plug>(smart-tab)"
+			end
+		end, { desc = "smart-tab", expr = true })
 	end
 end
 
