@@ -30,11 +30,17 @@ local function smart_tab()
     if not node then
         return
     end
-    while should_skip(node:type()) do
+    while node and should_skip(node:type()) do
         node = node:parent()
     end
     local row, col = node:end_()
-    vim.api.nvim_win_set_cursor(0, { row + 1, col })
+    local total_lines = vim.api.nvim_buf_line_count(0)
+
+    if row < total_lines then
+        vim.api.nvim_win_set_cursor(0, { row + 1, col })
+    else
+        return vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, true, true), 'n', true)
+    end
 end
 
 -- NOTE: this allows cursor movement on expr mapping
