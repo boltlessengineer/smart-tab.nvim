@@ -33,10 +33,10 @@ require('smart-tab').setup({
 ### Manual Keymap
 
 ```lua
-vim.keymap.set("i", "<tab>", "<plug>(smart-tab)")
+vim.keymap.set("i", "<tab>", require('smart-tab').smart_tab)
 ```
 
-> NOTE: this won't fallback to `<tab>` on blank line
+> NOTE: this won't fallback to `<tab>`
 
 ## Usage
 
