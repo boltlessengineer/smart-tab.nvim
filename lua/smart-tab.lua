@@ -3,9 +3,11 @@ local M = {}
 ---@class SmartTabConfig
 ---@field skips (string|fun(node_type: string):boolean)[]
 ---@field mapping string|boolean
+---@field filetype_exclude string[]
 local configs = {
     skips = { "string_content" },
     mapping = "<tab>",
+    filetype_exclude = { "TelescopePrompt" },
 }
 
 local function is_blank_line()
@@ -59,7 +61,11 @@ function M.setup(opts)
     configs = vim.tbl_extend("force", configs, opts)
     if configs.mapping then
         vim.keymap.set("i", configs.mapping, function()
-            if is_blank_line() or not M.smart_tab() then
+            local just_tab = vim.tbl_contains(configs.filetype_exclude, vim.bo.filetype) or is_blank_line()
+            if not just_tab then
+                just_tab = not M.smart_tab()
+            end
+            if just_tab then
                 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(configs.mapping, true, true, true), "n", true)
             end
         end, { desc = "smart-tab" })
