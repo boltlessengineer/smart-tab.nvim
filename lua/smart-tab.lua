@@ -3,9 +3,11 @@ local M = {}
 ---@class SmartTabConfig
 ---@field skips (string|fun(node_type: string):boolean)[]
 ---@field mapping string|boolean
+---@field exclude_filetype string[]
 local configs = {
     skips = { "string_content" },
     mapping = "<tab>",
+    exclude_filetype = {},
 }
 
 local function is_blank_line()
@@ -52,17 +54,35 @@ function M.smart_tab()
     return ok
 end
 
+local function setup_keymap(filetype, buffer)
+    if vim.tbl_contains(configs.exclude_filetype, filetype) then
+        return
+    end
+    local mapping = configs.mapping--[[@as string]]
+    vim.keymap.set("i", mapping, function()
+        if is_blank_line() or not M.smart_tab() then
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(mapping, true, true, true), "n", true)
+        end
+    end, {
+        buffer = buffer,
+        desc = "smart-tab",
+    })
+end
+
 ---setup smart-tab plugin
 ---@param opts? SmartTabConfig
 function M.setup(opts)
     opts = opts or {}
     configs = vim.tbl_extend("force", configs, opts)
     if configs.mapping then
-        vim.keymap.set("i", configs.mapping, function()
-            if is_blank_line() or not M.smart_tab() then
-                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(configs.mapping, true, true, true), "n", true)
-            end
-        end, { desc = "smart-tab" })
+        vim.api.nvim_create_autocmd("FileType", {
+            callback = function(event)
+                setup_keymap(event.match, event.buf)
+            end,
+        })
+        -- load `setup_keymap` manually to work with lazy-loading
+        local buffer = vim.api.nvim_get_current_buf()
+        setup_keymap(vim.bo.filetype, buffer)
     end
 end
 
